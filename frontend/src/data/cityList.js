@@ -1,0 +1,23 @@
+// src/data/UPCities.js
+export const upCities = [
+  "Lucknow",
+  "Kanpur",
+  "Varanasi",
+  "Prayagraj",
+  "Agra",
+  "Ghaziabad",
+  "Noida",
+  "Meerut",
+  "Gorakhpur",
+  "Bareilly",
+  "Aligarh",
+  "Moradabad",
+  "Saharanpur",
+  "Jhansi",
+  "Ayodhya",
+  "Mathura",
+  "Basti",
+  "Sitapur",
+  "Firozabad",
+  "Etawah",
+];
