@@ -5,6 +5,7 @@ import ContactUs from "./Pages/ContactUs";
 import Login from "./Pages/Login";
 import Signup from "./Pages/Signup";
 import MyBookings from "./Pages/MyBooking";
+import SeatSelection from "./Pages/SeatSelection";
 
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
         <Route path="/login"  element={<Login/>} />
         <Route path="/signup"  element={<Signup/>} />
         <Route  path="/mybookings"  element={<MyBookings/>}  />
+        <Route path="/bus/:id" element={<SeatSelection />} />
       </Routes>
     </BrowserRouter>
   );

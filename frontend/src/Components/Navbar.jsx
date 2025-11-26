@@ -1,6 +1,5 @@
 import React from 'react'
-import { Link } from 'react-router'
-import { useNavigate } from 'react-router'
+import { Link, useNavigate } from 'react-router-dom'
 
 function Navbar() {
     const navigate= useNavigate()
