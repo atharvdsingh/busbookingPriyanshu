@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { MapPin, Clock, Bus, IndianRupee, Filter } from "lucide-react";
+import API from "../api/axios";
 
 // Pool of buses
 const busPool = [
@@ -57,14 +58,33 @@ const BusList = () => {
   const navigate = useNavigate();
   const { source, destination, date } = location.state || {};
   const [buses, setBuses] = useState([]);
+  console.log("Source:", source);
+  console.log("Destination:", destination);
+  console.log("Date:", date);                                                                                                                                           
+
+  const [activeFilter, setActiveFilter] = useState("All");
 
   useEffect(() => {
-    // Generate random 8–12 buses from pool
-    const shuffled = [...busPool].sort(() => 0.5 - Math.random());
-    const selected = shuffled.slice(0, Math.floor(Math.random() * 5) + 8);
-    const randomBuses = selected.map((bus, idx) => generateRandomBus(bus, idx + 1));
-    setBuses(randomBuses);
-  }, []);
+    const fetchBuses = async () => {
+      try {
+        const { data } = await API.get('/buses', {
+          params: {
+            from: source,
+            to: destination,
+            date: date,
+            type: activeFilter !== "All" ? activeFilter : undefined
+          }
+        });
+        console.log("Fetched buses:", data);
+        setBuses(data);
+      } catch (error) {
+        console.error("Error fetching buses:", error);
+        // Fallback or empty state handled by UI
+      }
+    };
+
+    fetchBuses();
+  }, [source, destination, date, activeFilter]);
 
   return (
     <div className="min-h-screen bg-gray-50 px-4 py-6">
@@ -89,10 +109,19 @@ const BusList = () => {
           <span className="font-medium">Filters:</span>
         </div>
         <div className="flex space-x-2">
-          <button className="px-4 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">All</button>
-          <button className="px-4 py-1 bg-gray-100 hover:bg-gray-200 rounded-full text-sm font-medium">AC</button>
-          <button className="px-4 py-1 bg-gray-100 hover:bg-gray-200 rounded-full text-sm font-medium">Non-AC</button>
-          <button className="px-4 py-1 bg-gray-100 hover:bg-gray-200 rounded-full text-sm font-medium">Sleeper</button>
+          {["All", "AC", "Non-AC", "Sleeper"].map((filter) => (
+            <button
+              key={filter}
+              onClick={() => setActiveFilter(filter)}
+              className={`px-4 py-1 rounded-full text-sm font-medium transition ${
+                activeFilter === filter
+                  ? "bg-blue-100 text-blue-700"
+                  : "bg-gray-100 hover:bg-gray-200 text-gray-600"
+              }`}
+            >
+              {filter}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -117,7 +146,7 @@ const BusList = () => {
               <div className="mt-4 md:mt-0 flex items-center space-x-6">
                 <div className="flex items-center text-green-700 font-semibold">
                   <IndianRupee className="w-4 h-4 mr-1" />
-                  {bus.price}
+                  {bus.basePrice}
                 </div>
                 <p className="text-sm text-gray-500">{bus.seatsAvailable} seats left</p>
                 <button

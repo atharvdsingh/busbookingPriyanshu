@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { MapPin, Clock, Bus, IndianRupee, Trash2 } from "lucide-react";
+import API from "../api/axios";
 import Navbar from "../Components/Navbar";
+import toast from 'react-hot-toast';
 
 // Dummy booking data (simulate user bookings)
 const dummyBookings = [
@@ -40,15 +42,42 @@ export default function MyBookings() {
   const [bookings, setBookings] = useState([]);
 
   useEffect(() => {
-    // simulate fetching user's bookings
-    setTimeout(() => {
-      setBookings(dummyBookings);
-    }, 500);
+    const fetchBookings = async () => {
+      try {
+        const { data } = await API.get('/bookings/my-bookings');
+        console.log("Fetched bookings:", data);
+        // Transform data if necessary to match UI expectations
+        // Assuming backend returns bookings with included bus details
+        const formattedBookings = data.map(b => ({
+          id: b.id,
+          busName: b.bus?.name || "Unknown Bus",
+          source: b.bus?.source || "Unknown", 
+          destination: b.bus?.destination || "Unknown",
+          date: new Date(b.date).toLocaleDateString(),
+          seats: b.seatNumbers.length,
+          price: b.totalPrice,
+          status: b.status
+        }));
+        setBookings(formattedBookings);
+      } catch (error) {
+        console.error("Error fetching bookings:", error);
+      }
+    };
+
+    fetchBookings();
   }, []);
 
-  const cancelBooking = (id) => {
+  const cancelBooking = async (id) => {
     if (window.confirm("Are you sure you want to cancel this booking?")) {
-      setBookings(bookings.map(b => b.id === id ? { ...b, status: "Cancelled" } : b));
+      try {
+        await API.put(`/bookings/${id}/cancel`);
+        console.log("Booking cancelled:", id);
+        setBookings(bookings.map(b => b.id === id ? { ...b, status: "Cancelled" } : b));
+        toast.success("Booking cancelled successfully.");
+      } catch (error) {
+        console.error("Error cancelling booking:", error);
+        toast.error("Failed to cancel booking.");
+      }
     }
   };
 
