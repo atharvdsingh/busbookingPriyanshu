@@ -6,6 +6,7 @@ const asyncHandler = require('../utils/asyncHandler');
 // @access  Public
 const getBuses = asyncHandler(async (req, res) => {
   const { type, from, to, date } = req.query;
+  console.log(type,from,to,date)
 
   const where = {};
 

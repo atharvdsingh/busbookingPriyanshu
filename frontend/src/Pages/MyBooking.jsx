@@ -50,8 +50,8 @@ export default function MyBookings() {
         const formattedBookings = data.map(b => ({
           id: b.id,
           busName: b.bus?.name || "Unknown Bus",
-          source: b.bus?.departure || "Unknown", // Adjust based on actual bus model
-          destination: b.bus?.arrival || "Unknown",
+          source: b.bus?.source || "Unknown", 
+          destination: b.bus?.destination || "Unknown",
           date: new Date(b.date).toLocaleDateString(),
           seats: b.seatNumbers.length,
           price: b.totalPrice,

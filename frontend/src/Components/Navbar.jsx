@@ -18,19 +18,15 @@ function Navbar() {
           <a href="/" className="text-gray-600 hover:text-blue-600">
             Home
           </a>
-          <Link to="/mybookings" className="text-gray-600 hover:text-blue-600">
+          <Link to="/my-bookings" className="text-gray-600 hover:text-blue-600">
             My Bookings </Link>
        
-          <Link className='text-gray-600 hover:text-blue-600' to={"/contact"} > Contact Us </Link>
-          {token ? (
-            <button onClick={handleLogout} className="px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700">
-              Logout
-            </button>
-          ) : (
-            <button onClick={()=> navigate("/login")} className="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700">
-              Login
-            </button>
-          )}
+          <button 
+            onClick={token ? handleLogout : () => navigate("/login")} 
+            className={`px-4 py-2 text-white rounded-xl transition ${token ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700'}`}
+          >
+            {token ? "Logout" : "Login"}
+          </button>
         </div>
       </nav>
   )

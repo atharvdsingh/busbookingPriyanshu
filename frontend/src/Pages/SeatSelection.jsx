@@ -31,7 +31,7 @@ const SeatSelection = () => {
   };
 
   const handleBooking = async () => {
-    const totalPrice = selectedSeats.length * bus.price;
+    const totalPrice = selectedSeats.length * bus.basePrice;
     const bookingData = {
       busId: bus.id,
       seatNumbers: selectedSeats,
@@ -145,7 +145,7 @@ const SeatSelection = () => {
               <div className="space-y-3 mb-6">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Seat Price</span>
-                  <span className="font-medium">₹{bus.price}</span>
+                  <span className="font-medium">₹{bus.basePrice}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Selected Seats</span>
@@ -153,7 +153,7 @@ const SeatSelection = () => {
                 </div>
                 <div className="border-t pt-3 flex justify-between text-lg font-bold text-blue-600">
                   <span>Total</span>
-                  <span>₹{selectedSeats.length * bus.price}</span>
+                  <span>₹{selectedSeats.length * bus.basePrice}</span>
                 </div>
               </div>
               

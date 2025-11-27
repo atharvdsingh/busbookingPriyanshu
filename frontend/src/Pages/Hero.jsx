@@ -38,6 +38,14 @@ export default function Home() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    const token = localStorage.getItem("token");
+    
+    if (!token) {
+      alert("You must be logged in to search for buses.");
+      navigate("/login");
+      return;
+    }
+
     console.log("Searching buses for:", formData);
     navigate("/search", { state: formData });
   };

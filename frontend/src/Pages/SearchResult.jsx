@@ -58,6 +58,9 @@ const BusList = () => {
   const navigate = useNavigate();
   const { source, destination, date } = location.state || {};
   const [buses, setBuses] = useState([]);
+  console.log("Source:", source);
+  console.log("Destination:", destination);
+  console.log("Date:", date);                                                                                                                                           
 
   useEffect(() => {
     const fetchBuses = async () => {
@@ -131,7 +134,7 @@ const BusList = () => {
               <div className="mt-4 md:mt-0 flex items-center space-x-6">
                 <div className="flex items-center text-green-700 font-semibold">
                   <IndianRupee className="w-4 h-4 mr-1" />
-                  {bus.price}
+                  {bus.basePrice}
                 </div>
                 <p className="text-sm text-gray-500">{bus.seatsAvailable} seats left</p>
                 <button
