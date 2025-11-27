@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
 import API from "../api/axios";
+import toast from 'react-hot-toast';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -21,11 +22,11 @@ export default function Login() {
       console.log("Login successful:", data);
       localStorage.setItem('token', data.token);
       localStorage.setItem('userInfo', JSON.stringify(data));
-      alert("Login successful!");
+      toast.success("Login successful!");
       navigate("/");
     } catch (error) {
       console.error("Login failed:", error);
-      alert(error.response?.data?.message || "Login failed. Please check your credentials.");
+      toast.error(error.response?.data?.message || "Login failed. Please check your credentials.");
     }
   };
 

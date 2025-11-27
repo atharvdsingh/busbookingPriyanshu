@@ -62,6 +62,8 @@ const BusList = () => {
   console.log("Destination:", destination);
   console.log("Date:", date);                                                                                                                                           
 
+  const [activeFilter, setActiveFilter] = useState("All");
+
   useEffect(() => {
     const fetchBuses = async () => {
       try {
@@ -69,7 +71,8 @@ const BusList = () => {
           params: {
             from: source,
             to: destination,
-            date: date
+            date: date,
+            type: activeFilter !== "All" ? activeFilter : undefined
           }
         });
         console.log("Fetched buses:", data);
@@ -81,7 +84,7 @@ const BusList = () => {
     };
 
     fetchBuses();
-  }, [source, destination, date]);
+  }, [source, destination, date, activeFilter]);
 
   return (
     <div className="min-h-screen bg-gray-50 px-4 py-6">
@@ -106,10 +109,19 @@ const BusList = () => {
           <span className="font-medium">Filters:</span>
         </div>
         <div className="flex space-x-2">
-          <button className="px-4 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">All</button>
-          <button className="px-4 py-1 bg-gray-100 hover:bg-gray-200 rounded-full text-sm font-medium">AC</button>
-          <button className="px-4 py-1 bg-gray-100 hover:bg-gray-200 rounded-full text-sm font-medium">Non-AC</button>
-          <button className="px-4 py-1 bg-gray-100 hover:bg-gray-200 rounded-full text-sm font-medium">Sleeper</button>
+          {["All", "AC", "Non-AC", "Sleeper"].map((filter) => (
+            <button
+              key={filter}
+              onClick={() => setActiveFilter(filter)}
+              className={`px-4 py-1 rounded-full text-sm font-medium transition ${
+                activeFilter === filter
+                  ? "bg-blue-100 text-blue-700"
+                  : "bg-gray-100 hover:bg-gray-200 text-gray-600"
+              }`}
+            >
+              {filter}
+            </button>
+          ))}
         </div>
       </div>
 

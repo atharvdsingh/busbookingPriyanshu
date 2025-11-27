@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Mail, Phone, MapPin } from "lucide-react";
 import Navbar from "../Components/Navbar";
 
+import toast from 'react-hot-toast';
+
 export default function ContactUs() {
   const [formData, setFormData] = useState({
     name: "",
@@ -18,7 +20,7 @@ export default function ContactUs() {
     e.preventDefault();
     // For now, just log the form data
     console.log("Contact Form Submitted:", formData);
-    alert("Thank you! Your message has been sent.");
+    toast.success("Thank you! Your message has been sent.");
     setFormData({ name: "", email: "", subject: "", message: "" });
   };
 

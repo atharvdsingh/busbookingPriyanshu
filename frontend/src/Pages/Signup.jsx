@@ -1,16 +1,17 @@
 import React, { useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
 import API from "../api/axios";
+import toast from 'react-hot-toast';
 
 export default function Signup() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    phone: "",
     password: "",
-    confirmPassword: "",
   });
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -19,24 +20,16 @@ export default function Signup() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Simple password confirmation check
-    if (formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match!");
-      return;
-    }
-
     console.log("Signup data:", formData);
     
     try {
       const { data } = await API.post('/auth/register', formData);
       console.log("Signup successful:", data);
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('userInfo', JSON.stringify(data));
-      alert("Account created successfully!");
-      navigate("/"); // redirect to home page after signup
+      toast.success("Account created successfully! Please login.");
+      navigate("/login");
     } catch (error) {
       console.error("Signup failed:", error);
-      alert(error.response?.data?.message || "Signup failed. Please try again.");
+      toast.error(error.response?.data?.message || "Signup failed. Please try again.");
     }
   };
 

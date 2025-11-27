@@ -2,8 +2,9 @@ import React from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
 function Navbar() {
-    const navigate= useNavigate()
+    const navigate = useNavigate();
     const token = localStorage.getItem('token');
+    const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
 
     const handleLogout = () => {
       localStorage.removeItem('token');
@@ -20,6 +21,12 @@ function Navbar() {
           </a>
           <Link to="/my-bookings" className="text-gray-600 hover:text-blue-600">
             My Bookings </Link>
+            
+          {token && userInfo.role === 'admin' && (
+            <Link to="/admin/add-bus" className="text-gray-600 hover:text-blue-600">
+              Add Bus
+            </Link>
+          )}
        
           <button 
             onClick={token ? handleLogout : () => navigate("/login")} 

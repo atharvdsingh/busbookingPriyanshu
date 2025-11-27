@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { MapPin, Clock, Bus, IndianRupee, Trash2 } from "lucide-react";
 import API from "../api/axios";
 import Navbar from "../Components/Navbar";
+import toast from 'react-hot-toast';
 
 // Dummy booking data (simulate user bookings)
 const dummyBookings = [
@@ -72,9 +73,10 @@ export default function MyBookings() {
         await API.put(`/bookings/${id}/cancel`);
         console.log("Booking cancelled:", id);
         setBookings(bookings.map(b => b.id === id ? { ...b, status: "Cancelled" } : b));
+        toast.success("Booking cancelled successfully.");
       } catch (error) {
         console.error("Error cancelling booking:", error);
-        alert("Failed to cancel booking.");
+        toast.error("Failed to cancel booking.");
       }
     }
   };

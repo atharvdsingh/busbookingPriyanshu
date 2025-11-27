@@ -11,10 +11,20 @@ const getBuses = asyncHandler(async (req, res) => {
   const where = {};
 
   if (type && type !== 'All') {
-    where.type = {
-      contains: type,
-      mode: 'insensitive',
-    };
+    if (type === 'AC') {
+      // If user selects "AC", we want "AC Seater" or "AC Sleeper" but NOT "Non-AC"
+      // Since "Non-AC" contains "AC", a simple contains search matches both.
+      // We need to explicitly filter out "Non-AC".
+      where.AND = [
+        { type: { contains: 'AC', mode: 'insensitive' } },
+        { type: { not: { contains: 'Non-AC', mode: 'insensitive' } } }
+      ];
+    } else {
+      where.type = {
+        contains: type,
+        mode: 'insensitive',
+      };
+    }
   }
 
   if (from) {

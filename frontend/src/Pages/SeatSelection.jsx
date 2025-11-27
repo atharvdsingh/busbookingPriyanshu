@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ArrowLeft, CheckCircle } from "lucide-react";
 import API from "../api/axios";
+import toast from 'react-hot-toast';
 
 const SeatSelection = () => {
   const location = useLocation();
@@ -44,11 +45,11 @@ const SeatSelection = () => {
     try {
       const { data } = await API.post('/bookings', bookingData);
       console.log("Booking confirmed:", data);
-      alert(`Booking confirmed! Booking ID: ${data.id}\nTotal Price: ₹${totalPrice}`);
+      toast.success(`Booking confirmed! Total Price: ₹${totalPrice}`);
       navigate('/my-bookings');
     } catch (error) {
       console.error("Booking failed:", error);
-      alert(error.response?.data?.message || "Booking failed. Please try again.");
+      toast.error(error.response?.data?.message || "Booking failed. Please try again.");
     }
   };
 
