@@ -17,11 +17,17 @@ const getBuses = asyncHandler(async (req, res) => {
   }
 
   if (from) {
-    // Basic filter, in real app might need more complex logic
-    // Assuming 'departure' stores city or we have a route model
-    // For now, let's assume client filters by city or we add source/dest fields to Bus model
-    // Since schema has departure/arrival as String (time), we might need to adjust schema or logic
-    // For this MVP, let's return all and let frontend filter or assume basic filtering if fields existed
+    where.source = {
+      contains: from,
+      mode: 'insensitive',
+    };
+  }
+
+  if (to) {
+    where.destination = {
+      contains: to,
+      mode: 'insensitive',
+    };
   }
 
   const buses = await prisma.bus.findMany({
@@ -51,7 +57,7 @@ const getBusById = asyncHandler(async (req, res) => {
 // @route   POST /api/buses
 // @access  Private (Admin)
 const createBus = asyncHandler(async (req, res) => {
-  const { name, type, basePrice, departure, arrival, seatsAvailable } = req.body;
+  const { name, type, basePrice, departure, arrival, seatsAvailable, source, destination } = req.body;
 
   const bus = await prisma.bus.create({
     data: {
@@ -61,6 +67,8 @@ const createBus = asyncHandler(async (req, res) => {
       departure,
       arrival,
       seatsAvailable,
+      source: source || "Unknown",
+      destination: destination || "Unknown",
     },
   });
 
