@@ -1,162 +1,133 @@
 const { PrismaClient } = require('@prisma/client');
+const bcrypt = require('bcryptjs');
 
 const prisma = new PrismaClient();
 
-const upCities = [
-  "Lucknow",
-  "Kanpur",
-  "Varanasi",
-  "Prayagraj",
-  "Agra",
-  "Ghaziabad",
-  "Noida",
-  "Meerut",
-  "Gorakhpur",
-  "Bareilly",
-  "Aligarh",
-  "Moradabad",
-  "Saharanpur",
-  "Jhansi",
-  "Ayodhya",
-  "Mathura",
-  "Basti",
-  "Sitapur",
-  "Firozabad",
-  "Etawah",
+const cities = [
+  'Delhi', 'Mumbai', 'Bangalore', 'Hyderabad', 'Chennai', 
+  'Kolkata', 'Pune', 'Jaipur', 'Ahmedabad', 'Surat',
+  'Lucknow', 'Kanpur', 'Nagpur', 'Indore', 'Thane',
+  'Bhopal', 'Visakhapatnam', 'Patna', 'Vadodara', 'Ghaziabad'
 ];
 
-const busTypes = ["AC Seater", "Non-AC Seater", "AC Sleeper", "Non-AC Sleeper"];
-const busNames = [
-  "UPSRTC Express",
-  "Royal Travels",
-  "Shatabdi Bus Lines",
-  "City Connect",
-  "SilverLine Travels",
-  "BlueSky Express",
-  "YellowLine",
-  "FastTrack",
-  "Royal Coach",
-  "Metro Bus",
-  "SuperBus",
-  "GoTravel",
-  "StarLine",
-  "FastWay",
-];
+const busTypes = ['AC Seater', 'AC Sleeper', 'Non-AC Seater', 'Non-AC Sleeper', 'Volvo AC', 'Luxury Sleeper'];
 
-function getRandomElement(arr) {
-  return arr[Math.floor(Math.random() * arr.length)];
-}
+const getRandomElement = (arr) => arr[Math.floor(Math.random() * arr.length)];
+const getRandomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
-function getRandomTime() {
-  const hour = Math.floor(Math.random() * 24);
-  const minute = Math.floor(Math.random() * 60);
-  const period = hour >= 12 ? "PM" : "AM";
-  const displayHour = hour % 12 || 12;
-  return `${displayHour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')} ${period}`;
-}
-
-function addHours(timeStr, hoursToAdd) {
-  // Simple time addition logic for demo purposes
-  // Assuming format "HH:MM AM/PM"
-  // This is a rough approximation for seed data
-  return getRandomTime(); // Just return another random time for simplicity in seed
-}
+const generateTime = () => {
+  const hour = getRandomInt(0, 23).toString().padStart(2, '0');
+  const minute = getRandomInt(0, 59).toString().padStart(2, '0');
+  return `${hour}:${minute}`;
+};
 
 async function main() {
   console.log('Start seeding ...');
 
-  // Clear existing buses (optional, but good for clean state if desired)
-  // await prisma.bus.deleteMany({}); 
+  // 1. Clear existing data
+  await prisma.seat.deleteMany();
+  await prisma.booking.deleteMany();
+  await prisma.bus.deleteMany();
+  await prisma.user.deleteMany();
+  console.log('Cleared existing data.');
 
+  // 2. Create Users
+  const hashedPassword = await bcrypt.hash('password123', 10);
+
+  const admin = await prisma.user.create({
+    data: {
+      name: 'Admin User',
+      email: 'admin@example.com',
+      password: hashedPassword,
+      role: 'admin',
+      phone: '9999999999',
+    },
+  });
+  console.log(`Created admin: ${admin.email}`);
+
+  const user = await prisma.user.create({
+    data: {
+      name: 'John Doe',
+      email: 'user@example.com',
+      password: hashedPassword,
+      role: 'user',
+      phone: '8888888888',
+    },
+  });
+  console.log(`Created user: ${user.email}`);
+
+  // 3. Create Buses
   const busesToCreate = [];
-
-  // Generate buses for random routes
-  // We won't generate n*n routes as that's too many (20*19 = 380 routes)
-  // Let's generate about 50-100 random routes with multiple buses each
   
-  for (let i = 0; i < 100; i++) {
-    const source = getRandomElement(upCities);
-    let destination = getRandomElement(upCities);
+  // Generate routes between random city pairs
+  for (let i = 0; i < 50; i++) { // Create 50 random routes
+    let source = getRandomElement(cities);
+    let destination = getRandomElement(cities);
     
     while (source === destination) {
-      destination = getRandomElement(upCities);
+      destination = getRandomElement(cities);
     }
 
-    // Create 2-4 buses for this route
-    const numBuses = Math.floor(Math.random() * 3) + 2;
-
-    for (let j = 0; j < numBuses; j++) {
-      const departure = getRandomTime();
-      const arrival = getRandomTime(); // Simplified
+    // Create 3-5 buses for this route
+    const busesPerRoute = getRandomInt(3, 5);
+    
+    for (let j = 0; j < busesPerRoute; j++) {
       const type = getRandomElement(busTypes);
-      const basePrice = Math.floor(Math.random() * 500) + 300; // 300 - 800
-      const name = getRandomElement(busNames);
-      const seatsAvailable = Math.floor(Math.random() * 20) + 20; // 20 - 40
-
+      const seatsAvailable = getRandomInt(30, 50);
+      const price = getRandomInt(500, 3000);
+      
       busesToCreate.push({
-        name,
-        type,
-        basePrice,
-        departure,
-        arrival,
-        source,
-        destination,
-        seatsAvailable,
+        name: `${getRandomElement(['Express', 'Travels', 'Voyager', 'Lines', 'Connect'])} ${getRandomInt(100, 999)}`,
+        type: type,
+        basePrice: price,
+        departure: generateTime(),
+        arrival: generateTime(), // In a real app, arrival should be > departure, but for string representation it's fine for now
+        source: source,
+        destination: destination,
+        seatsAvailable: seatsAvailable,
       });
     }
   }
 
-  // Also ensure some popular routes definitely have buses
+  // Also ensure some popular routes exist specifically
   const popularRoutes = [
-    ["Lucknow", "Kanpur"],
-    ["Kanpur", "Lucknow"],
-    ["Lucknow", "Varanasi"],
-    ["Varanasi", "Lucknow"],
-    ["Agra", "Noida"],
-    ["Noida", "Agra"],
-    ["Delhi", "Lucknow"], // Adding Delhi manually as it's a common hub even if not in UP list
-    ["Lucknow", "Delhi"]
+    ['Delhi', 'Jaipur'],
+    ['Mumbai', 'Pune'],
+    ['Bangalore', 'Chennai'],
+    ['Delhi', 'Agra']
   ];
 
-  for (const [source, destination] of popularRoutes) {
+  for (const [src, dest] of popularRoutes) {
      for (let j = 0; j < 5; j++) {
-      const departure = getRandomTime();
-      const arrival = getRandomTime();
-      const type = getRandomElement(busTypes);
-      const basePrice = Math.floor(Math.random() * 500) + 400;
-      const name = getRandomElement(busNames);
-      const seatsAvailable = Math.floor(Math.random() * 20) + 20;
-
       busesToCreate.push({
-        name,
-        type,
-        basePrice,
-        departure,
-        arrival,
-        source,
-        destination,
-        seatsAvailable,
+        name: `SuperFast ${getRandomInt(1000, 9999)}`,
+        type: getRandomElement(busTypes),
+        basePrice: getRandomInt(400, 1500),
+        departure: generateTime(),
+        arrival: generateTime(),
+        source: src,
+        destination: dest,
+        seatsAvailable: 40,
       });
-    }
+     }
   }
 
   console.log(`Creating ${busesToCreate.length} buses...`);
-
-  for (const bus of busesToCreate) {
-    await prisma.bus.create({
-      data: bus,
-    });
-  }
+  
+  // Batch create buses
+  // Note: createMany is supported in MongoDB with Prisma
+  await prisma.bus.createMany({
+    data: busesToCreate,
+  });
 
   console.log('Seeding finished.');
 }
 
 main()
-  .then(async () => {
-    await prisma.$disconnect();
-  })
-  .catch(async (e) => {
+  .catch((e) => {
     console.error(e);
-    await prisma.$disconnect();
     process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
   });
