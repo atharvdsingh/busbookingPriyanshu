@@ -4,12 +4,8 @@ const bcrypt = require('bcryptjs');
 const prisma = new PrismaClient();
 
 const cities = [
-  'Delhi', 'Mumbai', 'Bangalore', 'Hyderabad', 'Chennai', 
-  'Kolkata', 'Pune', 'Jaipur', 'Ahmedabad', 'Surat',
-  'Lucknow', 'Kanpur', 'Nagpur', 'Indore', 'Thane',
-  'Bhopal', 'Visakhapatnam', 'Patna', 'Vadodara', 'Ghaziabad',
-  'Agra', 'Varanasi', 'Amritsar', 'Chandigarh', 'Dehradun',
-  'Prayagraj'
+  'Ghaziabad', 'Noida', 'Meerut', 'Gorakhpur', 'Bareilly',
+  'Lucknow', 'Kanpur', 'Varanasi', 'Prayagraj', 'Agra'
 ];
 
 // Bus operators and types from frontend inspiration
