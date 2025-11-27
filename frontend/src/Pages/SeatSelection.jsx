@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ArrowLeft, CheckCircle } from "lucide-react";
+import API from "../api/axios";
 
 const SeatSelection = () => {
   const location = useLocation();
@@ -29,8 +30,26 @@ const SeatSelection = () => {
     setSeats(newSeats);
   };
 
-  const handleBooking = () => {
-    alert(`Booking confirmed for seats: ${selectedSeats.join(", ")}\nTotal Price: ₹${selectedSeats.length * bus.price}`);
+  const handleBooking = async () => {
+    const totalPrice = selectedSeats.length * bus.price;
+    const bookingData = {
+      busId: bus.id,
+      seatNumbers: selectedSeats,
+      totalPrice,
+      date: new Date().toISOString() // Or use selected date if available in bus object
+    };
+
+    console.log("Booking data:", bookingData);
+
+    try {
+      const { data } = await API.post('/bookings', bookingData);
+      console.log("Booking confirmed:", data);
+      alert(`Booking confirmed! Booking ID: ${data.id}\nTotal Price: ₹${totalPrice}`);
+      navigate('/my-bookings');
+    } catch (error) {
+      console.error("Booking failed:", error);
+      alert(error.response?.data?.message || "Booking failed. Please try again.");
+    }
   };
 
   if (!bus) {

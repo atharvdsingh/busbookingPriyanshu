@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { MapPin, Clock, Bus, IndianRupee, Filter } from "lucide-react";
+import API from "../api/axios";
 
 // Pool of buses
 const busPool = [
@@ -59,12 +60,25 @@ const BusList = () => {
   const [buses, setBuses] = useState([]);
 
   useEffect(() => {
-    // Generate random 8–12 buses from pool
-    const shuffled = [...busPool].sort(() => 0.5 - Math.random());
-    const selected = shuffled.slice(0, Math.floor(Math.random() * 5) + 8);
-    const randomBuses = selected.map((bus, idx) => generateRandomBus(bus, idx + 1));
-    setBuses(randomBuses);
-  }, []);
+    const fetchBuses = async () => {
+      try {
+        const { data } = await API.get('/buses', {
+          params: {
+            from: source,
+            to: destination,
+            date: date
+          }
+        });
+        console.log("Fetched buses:", data);
+        setBuses(data);
+      } catch (error) {
+        console.error("Error fetching buses:", error);
+        // Fallback or empty state handled by UI
+      }
+    };
+
+    fetchBuses();
+  }, [source, destination, date]);
 
   return (
     <div className="min-h-screen bg-gray-50 px-4 py-6">

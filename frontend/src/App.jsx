@@ -6,6 +6,7 @@ import Login from "./Pages/Login";
 import Signup from "./Pages/Signup";
 import MyBookings from "./Pages/MyBooking";
 import SeatSelection from "./Pages/SeatSelection";
+import ProtectedRoute from "./Components/ProtectedRoute";
 
 
 function App() {
@@ -13,12 +14,15 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/search" element={< SearchResults/>} />
         <Route path="/contact"  element={<ContactUs/>} />
         <Route path="/login"  element={<Login/>} />
         <Route path="/signup"  element={<Signup/>} />
-        <Route  path="/mybookings"  element={<MyBookings/>}  />
-        <Route path="/bus/:id" element={<SeatSelection />} />
+        
+        <Route element={<ProtectedRoute />}>
+          <Route path="/search" element={< SearchResults/>} />
+          <Route  path="/my-bookings"  element={<MyBookings/>}  />
+          <Route path="/bus/:id" element={<SeatSelection />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   );

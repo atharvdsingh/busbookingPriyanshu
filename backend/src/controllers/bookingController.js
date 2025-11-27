@@ -6,6 +6,7 @@ const asyncHandler = require('../utils/asyncHandler');
 // @access  Private
 const createBooking = asyncHandler(async (req, res) => {
   const { busId, seatNumbers, totalPrice, date } = req.body;
+  console.log(busId,seatNumbers,totalPrice,date)
 
   if (!seatNumbers || seatNumbers.length === 0) {
     res.status(400);

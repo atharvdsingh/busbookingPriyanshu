@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import API from "../api/axios";
 
 export default function Signup() {
   const navigate = useNavigate();
@@ -15,7 +16,7 @@ export default function Signup() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     // Simple password confirmation check
@@ -25,8 +26,18 @@ export default function Signup() {
     }
 
     console.log("Signup data:", formData);
-    alert("Account created successfully!");
-    navigate("/login"); // redirect to login page
+    
+    try {
+      const { data } = await API.post('/auth/register', formData);
+      console.log("Signup successful:", data);
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('userInfo', JSON.stringify(data));
+      alert("Account created successfully!");
+      navigate("/"); // redirect to home page after signup
+    } catch (error) {
+      console.error("Signup failed:", error);
+      alert(error.response?.data?.message || "Signup failed. Please try again.");
+    }
   };
 
   return (

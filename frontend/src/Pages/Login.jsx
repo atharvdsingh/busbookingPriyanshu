@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
+import API from "../api/axios";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -11,12 +12,21 @@ export default function Login() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("Login data:", formData);
-    // TODO: Add authentication logic
-    alert("Login successful!");
-    navigate("/"); // redirect to home page after login
+    
+    try {
+      const { data } = await API.post('/auth/login', formData);
+      console.log("Login successful:", data);
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('userInfo', JSON.stringify(data));
+      alert("Login successful!");
+      navigate("/");
+    } catch (error) {
+      console.error("Login failed:", error);
+      alert(error.response?.data?.message || "Login failed. Please check your credentials.");
+    }
   };
 
   return (

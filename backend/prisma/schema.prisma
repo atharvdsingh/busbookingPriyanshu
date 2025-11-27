@@ -5,12 +5,12 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client"
-  output = "../src/generated"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "mongodb"
+  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -31,6 +31,8 @@ model Bus {
   basePrice      Float
   departure      String
   arrival        String
+  source         String    @default("Unknown")
+  destination    String    @default("Unknown")
   seatsAvailable Int
   bookings       Booking[]
   seats          Seat[]
