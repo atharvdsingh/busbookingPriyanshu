@@ -41,11 +41,22 @@ const getBuses = asyncHandler(async (req, res) => {
     };
   }
 
-  const buses = await prisma.bus.findMany({
-    where,
-  });
+  if (date) {
+    where.date = date;
+  }
 
-  res.json(buses);
+  console.log('Query Params:', { type, from, to, date });
+  console.log('Constructed Where:', JSON.stringify(where, null, 2));
+
+  try {
+    const buses = await prisma.bus.findMany({
+      where,
+    });
+    res.json(buses);
+  } catch (error) {
+    console.error('Error in getBuses:', error);
+    res.status(500).json({ message: error.message, stack: error.stack });
+  }
 });
 
 // @desc    Get bus by ID

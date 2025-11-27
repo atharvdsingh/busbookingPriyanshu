@@ -13,6 +13,13 @@ const createBooking = asyncHandler(async (req, res) => {
     throw new Error('No seats selected');
   }
 
+  if (!req.user) {
+    res.status(401);
+    throw new Error('User not authenticated');
+  }
+
+  console.log('User creating booking:', req.user.id);
+
   const booking = await prisma.booking.create({
     data: {
       userId: req.user.id,

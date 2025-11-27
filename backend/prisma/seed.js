@@ -7,10 +7,29 @@ const cities = [
   'Delhi', 'Mumbai', 'Bangalore', 'Hyderabad', 'Chennai', 
   'Kolkata', 'Pune', 'Jaipur', 'Ahmedabad', 'Surat',
   'Lucknow', 'Kanpur', 'Nagpur', 'Indore', 'Thane',
-  'Bhopal', 'Visakhapatnam', 'Patna', 'Vadodara', 'Ghaziabad'
+  'Bhopal', 'Visakhapatnam', 'Patna', 'Vadodara', 'Ghaziabad',
+  'Agra', 'Varanasi', 'Amritsar', 'Chandigarh', 'Dehradun'
 ];
 
-const busTypes = ['AC Seater', 'AC Sleeper', 'Non-AC Seater', 'Non-AC Sleeper', 'Volvo AC', 'Luxury Sleeper'];
+// Bus operators and types from frontend inspiration
+const busPool = [
+  { name: "UPSRTC Express", type: "Non-AC Seater" },
+  { name: "Royal Travels", type: "AC Sleeper" },
+  { name: "Shatabdi Bus Lines", type: "AC Seater" },
+  { name: "City Connect", type: "Non-AC Seater" },
+  { name: "SilverLine Travels", type: "AC Sleeper" },
+  { name: "BlueSky Express", type: "AC Seater" },
+  { name: "YellowLine", type: "Non-AC Sleeper" },
+  { name: "FastTrack", type: "AC Seater" },
+  { name: "Royal Coach", type: "AC Sleeper" },
+  { name: "Metro Bus", type: "Non-AC Seater" },
+  { name: "SuperBus", type: "AC Seater" },
+  { name: "GoTravel", type: "Non-AC Sleeper" },
+  { name: "StarLine", type: "AC Sleeper" },
+  { name: "FastWay", type: "AC Seater" },
+  { name: "Volvo Multi-Axle", type: "Volvo AC" },
+  { name: "Luxury Wheels", type: "Luxury Sleeper" }
+];
 
 const getRandomElement = (arr) => arr[Math.floor(Math.random() * arr.length)];
 const getRandomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
@@ -59,63 +78,59 @@ async function main() {
   // 3. Create Buses
   const busesToCreate = [];
   
-  // Generate routes between random city pairs
-  for (let i = 0; i < 50; i++) { // Create 50 random routes
-    let source = getRandomElement(cities);
-    let destination = getRandomElement(cities);
-    
-    while (source === destination) {
-      destination = getRandomElement(cities);
+  // Helper to get date string YYYY-MM-DD
+  const getDateString = (daysToAdd) => {
+    const date = new Date();
+    date.setDate(date.getDate() + daysToAdd);
+    return date.toISOString().split('T')[0];
+  };
+
+  // Generate routes for ALL city pairs for the next 10 days
+  for (let day = 0; day < 10; day++) {
+    const currentDate = getDateString(day);
+    console.log(`Generating buses for ${currentDate}...`);
+
+    for (const source of cities) {
+      for (const destination of cities) {
+        if (source === destination) continue;
+
+        // Create 1-2 buses for EVERY route to ensure coverage
+        // Popular routes get more
+        let busesPerRoute = getRandomInt(1, 2);
+        
+        // Boost popular routes
+        if (
+          (source === 'Delhi' && destination === 'Jaipur') ||
+          (source === 'Mumbai' && destination === 'Pune') ||
+          (source === 'Varanasi' && destination === 'Lucknow') || // Explicitly requested
+          (source === 'Lucknow' && destination === 'Varanasi')
+        ) {
+          busesPerRoute = getRandomInt(4, 6);
+        }
+
+        for (let j = 0; j < busesPerRoute; j++) {
+          const busTemplate = getRandomElement(busPool);
+          const seatsAvailable = getRandomInt(30, 50);
+          const basePrice = getRandomInt(300, 2500);
+          
+          busesToCreate.push({
+            name: busTemplate.name,
+            type: busTemplate.type,
+            basePrice: basePrice,
+            departure: generateTime(),
+            arrival: generateTime(),
+            source: source,
+            destination: destination,
+            date: currentDate,
+            seatsAvailable: seatsAvailable,
+          });
+        }
+      }
     }
-
-    // Create 3-5 buses for this route
-    const busesPerRoute = getRandomInt(3, 5);
-    
-    for (let j = 0; j < busesPerRoute; j++) {
-      const type = getRandomElement(busTypes);
-      const seatsAvailable = getRandomInt(30, 50);
-      const price = getRandomInt(500, 3000);
-      
-      busesToCreate.push({
-        name: `${getRandomElement(['Express', 'Travels', 'Voyager', 'Lines', 'Connect'])} ${getRandomInt(100, 999)}`,
-        type: type,
-        basePrice: price,
-        departure: generateTime(),
-        arrival: generateTime(), // In a real app, arrival should be > departure, but for string representation it's fine for now
-        source: source,
-        destination: destination,
-        seatsAvailable: seatsAvailable,
-      });
-    }
-  }
-
-  // Also ensure some popular routes exist specifically
-  const popularRoutes = [
-    ['Delhi', 'Jaipur'],
-    ['Mumbai', 'Pune'],
-    ['Bangalore', 'Chennai'],
-    ['Delhi', 'Agra']
-  ];
-
-  for (const [src, dest] of popularRoutes) {
-     for (let j = 0; j < 5; j++) {
-      busesToCreate.push({
-        name: `SuperFast ${getRandomInt(1000, 9999)}`,
-        type: getRandomElement(busTypes),
-        basePrice: getRandomInt(400, 1500),
-        departure: generateTime(),
-        arrival: generateTime(),
-        source: src,
-        destination: dest,
-        seatsAvailable: 40,
-      });
-     }
   }
 
   console.log(`Creating ${busesToCreate.length} buses...`);
   
-  // Batch create buses
-  // Note: createMany is supported in MongoDB with Prisma
   await prisma.bus.createMany({
     data: busesToCreate,
   });
