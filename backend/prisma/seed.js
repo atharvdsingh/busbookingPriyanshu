@@ -8,7 +8,8 @@ const cities = [
   'Kolkata', 'Pune', 'Jaipur', 'Ahmedabad', 'Surat',
   'Lucknow', 'Kanpur', 'Nagpur', 'Indore', 'Thane',
   'Bhopal', 'Visakhapatnam', 'Patna', 'Vadodara', 'Ghaziabad',
-  'Agra', 'Varanasi', 'Amritsar', 'Chandigarh', 'Dehradun'
+  'Agra', 'Varanasi', 'Amritsar', 'Chandigarh', 'Dehradun',
+  'Prayagraj'
 ];
 
 // Bus operators and types from frontend inspiration
@@ -94,19 +95,8 @@ async function main() {
       for (const destination of cities) {
         if (source === destination) continue;
 
-        // Create 1-2 buses for EVERY route to ensure coverage
-        // Popular routes get more
-        let busesPerRoute = getRandomInt(1, 2);
-        
-        // Boost popular routes
-        if (
-          (source === 'Delhi' && destination === 'Jaipur') ||
-          (source === 'Mumbai' && destination === 'Pune') ||
-          (source === 'Varanasi' && destination === 'Lucknow') || // Explicitly requested
-          (source === 'Lucknow' && destination === 'Varanasi')
-        ) {
-          busesPerRoute = getRandomInt(4, 6);
-        }
+        // Create exactly 5 buses for EVERY route as requested
+        const busesPerRoute = 5;
 
         for (let j = 0; j < busesPerRoute; j++) {
           const busTemplate = getRandomElement(busPool);
