@@ -13,6 +13,7 @@ const generateToken = (id) => {
 // @route   POST /api/auth/register
 // @access  Public
 const registerUser = asyncHandler(async (req, res) => {
+  
   const { name, email, password, phone } = req.body;
   console.log(name,email,password,phone)
 
@@ -60,25 +61,31 @@ const registerUser = asyncHandler(async (req, res) => {
 // @route   POST /api/auth/login
 // @access  Public
 const loginUser = asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
 
-  const user = await prisma.user.findUnique({
-    where: { email },
-  });
-
-  if (user && (await bcrypt.compare(password, user.password))) {
-    res.json({
-      _id: user.id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      token: generateToken(user.id),
+  
+    const { email, password } = req.body;
+  
+    const user = await prisma.user.findUnique({
+      where: { email },
     });
-  } else {
-    res.status(401);
-    throw new Error('Invalid credentials');
-  }
-});
+  
+    if (user && (await bcrypt.compare(password, user.password))) {
+      res.json({
+        _id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        token: generateToken(user.id),
+      });
+    } else {
+      res.status(401);
+      throw new Error('Invalid credentials');
+    }
+
+}
+
+
+);
 
 module.exports = {
   registerUser,
