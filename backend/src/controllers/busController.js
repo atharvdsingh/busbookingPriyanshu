@@ -68,7 +68,19 @@ const getBusById = asyncHandler(async (req, res) => {
   });
 
   if (bus) {
-    res.json(bus);
+    // Fetch all active bookings for this bus
+    const bookings = await prisma.booking.findMany({
+      where: {
+        busId: req.params.id,
+        status: { not: 'Cancelled' },
+      },
+      select: { seatNumbers: true },
+    });
+
+    // Flatten the array of seat numbers
+    const bookedSeats = bookings.flatMap((b) => b.seatNumbers);
+
+    res.json({ ...bus, bookedSeats });
   } else {
     res.status(404);
     throw new Error('Bus not found');

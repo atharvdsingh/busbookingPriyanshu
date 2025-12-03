@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, CheckCircle } from "lucide-react";
 import API from "../api/axios";
 import toast from 'react-hot-toast';
@@ -7,15 +7,44 @@ import toast from 'react-hot-toast';
 const SeatSelection = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const bus = location.state;
+  const { id } = useParams();
+  
+  // Initialize bus from location state if available, otherwise null
+  const [bus, setBus] = useState(location.state || null);
+  const [loading, setLoading] = useState(!location.state);
 
-  // Mock seat layout (2 rows of 10 seats on each side for a 40 seater)
   // 0: Available, 1: Booked, 2: Selected
-  const [seats, setSeats] = useState(
-    Array(40).fill(0).map(() => (Math.random() > 0.7 ? 1 : 0)) // Randomly book some seats
-  );
-
+  // Initialize with 40 empty seats
+  const [seats, setSeats] = useState(Array(40).fill(0));
   const [selectedSeats, setSelectedSeats] = useState([]);
+
+  useEffect(() => {
+    const fetchBusDetails = async () => {
+      try {
+        const { data } = await API.get(`/buses/${id}`);
+        setBus(data); // Update bus details (useful if page refreshed)
+        
+        // Update seat availability based on bookedSeats from backend
+        const newSeats = Array(40).fill(0);
+        if (data.bookedSeats && Array.isArray(data.bookedSeats)) {
+          data.bookedSeats.forEach(seatNum => {
+            // seatNum is 1-based index, so subtract 1 for array index
+            if (seatNum > 0 && seatNum <= 40) {
+              newSeats[seatNum - 1] = 1; // Mark as booked
+            }
+          });
+        }
+        setSeats(newSeats);
+      } catch (error) {
+        console.error("Error fetching bus details:", error);
+        toast.error("Failed to load seat availability.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBusDetails();
+  }, [id]);
 
   const toggleSeat = (index) => {
     if (seats[index] === 1) return; // Cannot select booked seats
@@ -32,6 +61,8 @@ const SeatSelection = () => {
   };
 
   const handleBooking = async () => {
+    if (!bus) return;
+
     const totalPrice = selectedSeats.length * bus.basePrice;
     const bookingData = {
       busId: bus.id,
@@ -53,8 +84,12 @@ const SeatSelection = () => {
     }
   };
 
+  if (loading) {
+    return <div className="min-h-screen flex items-center justify-center">Loading seat data...</div>;
+  }
+
   if (!bus) {
-    return <div className="p-10 text-center">No bus selected. Please go back and select a bus.</div>;
+    return <div className="p-10 text-center">Bus not found. Please go back and select a bus.</div>;
   }
 
   return (

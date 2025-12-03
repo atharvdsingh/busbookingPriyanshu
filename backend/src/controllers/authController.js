@@ -69,31 +69,12 @@ const registerUser = asyncHandler(async (req, res) => {
 // @access  Public
 const loginUser = asyncHandler(async (req, res) => {
 
-<<<<<<< Updated upstream
   
     const { email, password } = req.body;
   
     const user = await prisma.user.findUnique({
       where: { email },
-=======
-  if (!email || !password) {
-    res.status(400);
-    throw new Error('Please provide email and password');
-  }
-
-  const user = await prisma.user.findUnique({
-    where: { email },
-  });
-
-  if (user && (await bcrypt.compare(password, user.password))) {
-    res.json({
-      _id: user.id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      token: generateToken(user.id),
->>>>>>> Stashed changes
-    });
+                                                                                                                                                              });
   
     if (user && (await bcrypt.compare(password, user.password))) {
       res.json({
@@ -113,7 +94,7 @@ const loginUser = asyncHandler(async (req, res) => {
 
 );
 
-module.exports = {
+module.exports = {                                                                                
   registerUser,
   loginUser,
 };

@@ -6,7 +6,7 @@ const asyncHandler = require('../utils/asyncHandler');
 // @access  Private
 const createBooking = asyncHandler(async (req, res) => {
   const { busId, seatNumbers, totalPrice, date } = req.body;
-  console.log(busId,seatNumbers,totalPrice,date)
+  console.log(busId, seatNumbers, totalPrice, date);
 
   if (!seatNumbers || seatNumbers.length === 0) {
     res.status(400);
@@ -16,6 +16,23 @@ const createBooking = asyncHandler(async (req, res) => {
   if (!req.user) {
     res.status(401);
     throw new Error('User not authenticated');
+  }
+
+  // Check for double booking
+  const existingBookings = await prisma.booking.findMany({
+    where: {
+      busId,
+      status: { not: 'Cancelled' },
+    },
+    select: { seatNumbers: true },
+  });
+
+  const allBookedSeats = existingBookings.flatMap((b) => b.seatNumbers);
+  const isDoubleBooked = seatNumbers.some((seat) => allBookedSeats.includes(seat));
+
+  if (isDoubleBooked) {
+    res.status(400);
+    throw new Error('One or more selected seats are already booked');
   }
 
   console.log('User creating booking:', req.user.id);
@@ -31,8 +48,15 @@ const createBooking = asyncHandler(async (req, res) => {
     },
   });
 
-  // Optional: Update seats availability or create Seat records
-  // For MVP, we just track seatNumbers in Booking
+  // Update seats availability
+  await prisma.bus.update({
+    where: { id: busId },
+    data: {
+      seatsAvailable: {
+        decrement: seatNumbers.length,
+      },
+    },
+  });
 
   res.status(201).json(booking);
 });
