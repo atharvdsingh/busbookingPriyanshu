@@ -2,41 +2,10 @@ import React, { useState, useEffect } from "react";
 import { MapPin, Clock, Bus, IndianRupee, Trash2 } from "lucide-react";
 import API from "../api/axios";
 import Navbar from "../Components/Navbar";
-import toast from 'react-hot-toast';
+import toast, { Toaster } from 'react-hot-toast';
 
 // Dummy booking data (simulate user bookings)
-const dummyBookings = [
-  {
-    id: 1,
-    busName: "UPSRTC Express",
-    source: "Lucknow",
-    destination: "Kanpur",
-    date: "2025-10-20",
-    seats: 2,
-    price: 700,
-    status: "Confirmed",
-  },
-  {
-    id: 2,
-    busName: "Royal Travels",
-    source: "Agra",
-    destination: "Lucknow",
-    date: "2025-10-22",
-    seats: 1,
-    price: 550,
-    status: "Pending",
-  },
-  {
-    id: 3,
-    busName: "Shatabdi Bus Lines",
-    source: "Varanasi",
-    destination: "Lucknow",
-    date: "2025-10-25",
-    seats: 3,
-    price: 1440,
-    status: "Cancelled",
-  },
-];
+
 
 export default function MyBookings() {
   const [bookings, setBookings] = useState([]);
@@ -67,6 +36,7 @@ export default function MyBookings() {
     fetchBookings();
   }, []);
 
+  
   const cancelBooking = async (id) => {
     if (window.confirm("Are you sure you want to cancel this booking?")) {
       try {
