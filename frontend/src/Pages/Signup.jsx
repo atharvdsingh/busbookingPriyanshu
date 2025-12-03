@@ -9,7 +9,9 @@ export default function Signup() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    phone: "",
     password: "",
+    confirmPassword: "",
   });
   const [showPassword, setShowPassword] = useState(false);
 
@@ -20,10 +22,15 @@ export default function Signup() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (formData.password !== formData.confirmPassword) {
+      return toast.error("Passwords do not match");
+    }
+
     console.log("Signup data:", formData);
     
     try {
-      const { data } = await API.post('/auth/register', formData);
+      const { confirmPassword, ...dataToSend } = formData;
+      const { data } = await API.post('/auth/register', dataToSend);
       console.log("Signup successful:", data);
       toast.success("Account created successfully! Please login.");
       navigate("/login");
@@ -73,15 +80,24 @@ export default function Signup() {
           />
 
           {/* Password */}
-          <input
-            type="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            placeholder="Password"
-            className="w-full p-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
+          <div className="relative">
+             <input
+              type={showPassword ? "text" : "password"}
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="Password"
+              className="w-full p-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            />
+             <button
+              type="button"
+              className="absolute right-3 top-3 text-gray-400"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            </button>
+          </div>
 
           {/* Confirm Password */}
           <input

@@ -15,7 +15,6 @@ const generateToken = (id) => {
 const registerUser = asyncHandler(async (req, res) => {
   
   const { name, email, password, phone } = req.body;
-  console.log(name,email,password,phone)
 
   if (!name || !email || !password) {
     res.status(400);
@@ -34,26 +33,34 @@ const registerUser = asyncHandler(async (req, res) => {
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(password, salt);
 
-  const user = await prisma.user.create({
-    data: {
-      name,
-      email,
-      password: hashedPassword,
-      phone,
-    },
-  });
-
-  if (user) {
-    res.status(201).json({
-      _id: user.id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      token: generateToken(user.id),
+  try {
+    const user = await prisma.user.create({
+      data: {
+        name,
+        email,
+        password: hashedPassword,
+        phone,
+      },
     });
-  } else {
-    res.status(400);
-    throw new Error('Invalid user data');
+
+    if (user) {
+      res.status(201).json({
+        _id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        token: generateToken(user.id),
+      });
+    } else {
+      res.status(400);
+      throw new Error('Invalid user data');
+    }
+  } catch (error) {
+    if (error.code === 'P2002') {
+      res.status(400);
+      throw new Error('Email already in use');
+    }
+    throw error;
   }
 });
 
@@ -62,11 +69,30 @@ const registerUser = asyncHandler(async (req, res) => {
 // @access  Public
 const loginUser = asyncHandler(async (req, res) => {
 
+<<<<<<< Updated upstream
   
     const { email, password } = req.body;
   
     const user = await prisma.user.findUnique({
       where: { email },
+=======
+  if (!email || !password) {
+    res.status(400);
+    throw new Error('Please provide email and password');
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { email },
+  });
+
+  if (user && (await bcrypt.compare(password, user.password))) {
+    res.json({
+      _id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      token: generateToken(user.id),
+>>>>>>> Stashed changes
     });
   
     if (user && (await bcrypt.compare(password, user.password))) {
